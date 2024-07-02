@@ -26,14 +26,20 @@ local_code_path=0
 openresty="apisix-runtime"
 artifact="0"
 runtime_version="0"
-apisix_repo="https://github.com/apache/apisix"
-apisix_runtime_repo="https://github.com/api7/apisix-build-tools.git"
+apisix_repo="https://github.com/osaizar/apisix"
+apisix_runtime_repo="https://github.com/osaizar/apisix-build-tools.git"
 dashboard_repo="https://github.com/apache/apisix-dashboard"
 
 ### set the default image for deb package
 ifeq ($(type), deb)
 image_base="ubuntu"
 image_tag="20.04"
+endif
+
+### set the default image for sles package
+ifeq ($(type), rpm-sles)
+image_base="registry.suse.com/suse/sle15"
+image_tag="15.5"
 endif
 
 buildx=0
@@ -182,6 +188,16 @@ else
 	$(call build,apisix,apisix,rpm,$(local_code_path))
 endif
 
+.PHONY: build-apisix-rpm-sles
+build-apisix-rpm-sles:
+ifeq ($(local_code_path), 0)
+	git clone -b $(checkout) $(apisix_repo) ./apisix
+	$(call build,apisix,apisix,rpm-sles,"./apisix")
+	rm -fr ./apisix
+else
+	$(call build,apisix,apisix,rpm-sles,$(local_code_path))
+endif
+
 .PHONY: build-apisix-deb
 build-apisix-deb:
 ifeq ($(local_code_path), 0)
@@ -196,6 +212,10 @@ endif
 .PHONY: package-apisix-rpm
 package-apisix-rpm:
 	$(call package,apisix,rpm)
+
+.PHONY: package-apisix-rpm-sles
+package-apisix-rpm-sles:
+	$(call package,apisix,rpm-sles)
 
 .PHONY: package-apisix-deb
 package-apisix-deb:
@@ -241,6 +261,16 @@ ifeq ($(app),apisix)
 	rm -fr ./apisix-runtime
 else
 	$(call build_runtime,apisix-runtime,apisix-runtime,rpm,"./")
+endif
+
+.PHONY: build-apisix-runtime-rpm-sles
+build-apisix-runtime-rpm-sles:
+ifeq ($(app),apisix)
+	git clone -b apisix-runtime/$(runtime_version) $(apisix_runtime_repo) ./apisix-runtime
+	$(call build_runtime,apisix-runtime,apisix-runtime,rpm-sles,"./apisix-runtime")
+	rm -fr ./apisix-runtime
+else
+	$(call build_runtime,apisix-runtime,apisix-runtime,rpm-sles,"./")
 endif
 
 .PHONY: build-apisix-runtime-deb
@@ -303,7 +333,7 @@ endif
 ifeq ($(filter $(app),apisix dashboard apisix-base apisix-runtime),)
 $(info  the app's value have to be apisix, dashboard, apisix-base and apisix-runtime!)
 
-else ifeq ($(filter $(type),rpm deb apk),)
+else ifeq ($(filter $(type),rpm rpm-sles deb apk),)
 $(info  the type's value have to be rpm, deb or apk!)
 
 else ifeq ($(app)_$(type),apisix-base_rpm)
@@ -337,6 +367,12 @@ package: build-fpm
 package: build-apisix-runtime-rpm
 package: build-apisix-rpm
 package: package-apisix-rpm
+
+else ifeq ($(app)_$(type),apisix_rpm-sles)
+package: build-fpm
+package: build-apisix-runtime-rpm-sles
+package: build-apisix-rpm-sles
+package: package-apisix-rpm-sles
 
 else ifeq ($(app)_$(type),apisix_deb)
 package: build-fpm

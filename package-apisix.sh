@@ -6,6 +6,12 @@ dist=$(cat /tmp/dist)
 
 ARCH=${ARCH:-`(uname -m | tr '[:upper:]' '[:lower:]')`}
 
+# Fix package type when sles
+if [ "$PACKAGE_TYPE" == "rpm-sles" ]
+then
+	PACKAGE_TYPE="rpm"
+fi
+
 # Determine the dependencies
 dep_ldap="openldap-devel"
 if [ "$PACKAGE_TYPE" == "deb" ]
