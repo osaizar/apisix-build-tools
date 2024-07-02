@@ -57,8 +57,8 @@ install_openresty_rpm() {
     yum install -y pcre pcre-devel openldap-devel
 }
 
-install_openresty_rpm_sles() { # TODO
-    yum install -y pcre pcre-devel openldap-devel
+install_openresty_rpm_sles() {
+    zypper install -y libpcre1 pcre-devel pcre-tools openldap2-devel
 }
 
 install_luarocks() {
