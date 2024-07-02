@@ -16,7 +16,25 @@ install_apisix_dependencies_rpm() {
     install_luarocks
 }
 
+install_apisix_dependencies_rpm_sles() {
+    install_dependencies_rpm_sles
+    install_openresty_rpm_sles
+    install_luarocks
+}
+
 install_dependencies_rpm() {
+    # install basic dependencies
+    if [[ $IMAGE_BASE == "registry.access.redhat.com/ubi8/ubi" ]]; then
+        yum install -y --disablerepo=* --enablerepo=ubi-8-appstream-rpms --enablerepo=ubi-8-baseos-rpms wget tar gcc automake autoconf libtool make curl git which unzip sudo
+        yum install -y --disablerepo=* --enablerepo=ubi-8-appstream-rpms --enablerepo=ubi-8-baseos-rpms yum-utils
+    else
+        yum install -y wget tar gcc automake autoconf libtool make curl git which unzip sudo
+        yum install -y epel-release
+        yum install -y yum-utils readline-devel
+    fi
+}
+
+install_dependencies_rpm_sles() { # TODO
     # install basic dependencies
     if [[ $IMAGE_BASE == "registry.access.redhat.com/ubi8/ubi" ]]; then
         yum install -y --disablerepo=* --enablerepo=ubi-8-appstream-rpms --enablerepo=ubi-8-baseos-rpms wget tar gcc automake autoconf libtool make curl git which unzip sudo
@@ -41,6 +59,10 @@ install_openresty_deb() {
 }
 
 install_openresty_rpm() {
+    yum install -y pcre pcre-devel openldap-devel
+}
+
+install_openresty_rpm_sles() { # TODO
     yum install -y pcre pcre-devel openldap-devel
 }
 
@@ -175,6 +197,9 @@ shift
 case ${case_opt} in
 install_apisix_dependencies_rpm)
     install_apisix_dependencies_rpm
+    ;;
+install_apisix_dependencies_rpm_sles)
+    install_apisix_dependencies_rpm_sles
     ;;
 install_apisix_dependencies_deb)
     install_apisix_dependencies_deb
