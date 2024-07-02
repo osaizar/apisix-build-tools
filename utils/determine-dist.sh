@@ -15,7 +15,6 @@ then
 elif [ "${IMAGE_BASE}" == "registry.access.redhat.com/ubi8/ubi" ]
 then
     dist="ubi${IMAGE_TAG}"
-fi
 elif [ "${IMAGE_BASE}" == "registry.suse.com/suse/sle15" ]
 then
     dist="sle${IMAGE_TAG}"
