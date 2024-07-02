@@ -36,9 +36,9 @@ install_dependencies_rpm() {
 
 install_dependencies_rpm_sles() {
     # install basic dependencies
-    zypper install -y wget tar gcc automake autoconf libtool make curl git which unzip sudo
+    zypper install -y wget tar gcc automake autoconf libtool make curl git which unzip sudo awk 
     zypper install -y lsb-release
-    zypper install -y readline-devel
+    zypper install -y readline-devel libyaml-0-2 libyaml-devel
 }
 
 install_dependencies_deb() {
