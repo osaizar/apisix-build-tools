@@ -96,6 +96,25 @@ build_apisix_runtime_rpm() {
     ${BUILD_PATH}/build-apisix-runtime.sh
 }
 
+build_apisix_runtime_rpm_sles() {
+    zypper install -y gcc gcc-c++ patch wget git make sudo xz perl
+    curl -L https://cpanmin.us | perl - --sudo App::cpanminus
+    command -v gcc
+    gcc --version
+
+    rm -f /etc/zypp/repos.d/openresty.repo 2> /dev/null
+    rpm --import https://openresty.org/package/pubkey.gpg
+    zypper ar -g --refresh --check "https://openresty.org/package/sles/openresty.repo"
+    zypper mr -G openresty
+    zypper refresh
+
+    zypper install -y libpcre1 pcre-devel pcre-tools \
+        openresty-zlib-devel openresty-pcre-devel
+
+    export_openresty_variables
+    ${BUILD_PATH}/build-apisix-runtime.sh
+}
+
 build_apisix_runtime_deb() {
     arch_path=""
     if [[ $ARCH == "arm64" ]] || [[ $ARCH == "aarch64" ]]; then
@@ -164,6 +183,9 @@ build_apisix_base_apk)
     ;;
 build_apisix_runtime_rpm)
     build_apisix_runtime_rpm
+    ;;
+build_apisix_runtime_rpm_sles)
+    build_apisix_runtime_rpm_sles
     ;;
 build_apisix_runtime_deb)
     build_apisix_runtime_deb

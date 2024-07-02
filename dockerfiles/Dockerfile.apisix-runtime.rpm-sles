@@ -1,0 +1,30 @@
+ARG IMAGE_BASE="registry.suse.com/suse/sle15"
+ARG IMAGE_TAG="15.5"
+
+FROM ${IMAGE_BASE}:${IMAGE_TAG}
+
+WORKDIR /tmp
+
+ARG VERSION
+ARG RUNTIME_VERSION
+ARG IMAGE_BASE
+ARG IMAGE_TAG
+ARG CODE_PATH
+
+ENV IMAGE_BASE=${IMAGE_BASE}
+ENV IMAGE_TAG=${IMAGE_TAG}
+ENV version=${VERSION}
+ENV runtime_version=${RUNTIME_VERSION}
+
+COPY ${CODE_PATH} ./
+
+RUN zypper install -y curl awk \
+    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+    && source "$HOME/.cargo/env" \
+    && rustup install 1.69 \
+    && rustup default 1.69 \
+    # build apisix runtime
+    && mv ./utils/build-common.sh ./utils/determine-dist.sh ./ \
+    && ./build-common.sh build_apisix_runtime_rpm_sles \
+    # determine dist and write it into /tmp/dist file
+    && ./determine-dist.sh
