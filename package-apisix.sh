@@ -6,24 +6,26 @@ dist=$(cat /tmp/dist)
 
 ARCH=${ARCH:-`(uname -m | tr '[:upper:]' '[:lower:]')`}
 
-# Fix package type when sles
-if [ "$PACKAGE_TYPE" == "rpm-sles" ]
-then
-	PACKAGE_TYPE="rpm"
-fi
-
 # Determine the dependencies
 dep_ldap="openldap-devel"
 if [ "$PACKAGE_TYPE" == "deb" ]
 then
     # the pkg contains the so library could be libldap-2.5 or libldap-2.4-2
 	dep_ldap="libldap2-dev"
+elif [ "$PACKAGE_TYPE" ==  "rpm-sles" ]
+then
+    dep_ldap="openldap2-devel"
 fi
+
 dep_pcre="pcre"
 if [ "$PACKAGE_TYPE" == "deb" ]
 then
 	dep_pcre="libpcre3"
+elif [ "$PACKAGE_TYPE" == "rpm-sles" ]
+then
+    dep_pcre="libpcre1"
 fi
+
 dep_which="which"
 if [ "$PACKAGE_TYPE" == "deb" ]
 then
@@ -52,6 +54,12 @@ artifact="apisix"
 if [ "$ARTIFACT" != "0" ]
 then
 	artifact=${ARTIFACT}
+fi
+
+# Fix package type when sles
+if [ "$PACKAGE_TYPE" == "rpm-sles" ]
+then
+	PACKAGE_TYPE="rpm"
 fi
 
 if [ "$OPENRESTY" == "apisix-runtime" ]
