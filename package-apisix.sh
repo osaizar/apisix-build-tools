@@ -8,13 +8,16 @@ ARCH=${ARCH:-`(uname -m | tr '[:upper:]' '[:lower:]')`}
 
 # Determine the dependencies
 dep_ldap="openldap-devel"
+dep_libyaml="libyaml-devel"
 if [ "$PACKAGE_TYPE" == "deb" ]
 then
     # the pkg contains the so library could be libldap-2.5 or libldap-2.4-2
 	dep_ldap="libldap2-dev"
+    dep_libyaml="libyaml-dev"
 elif [ "$PACKAGE_TYPE" ==  "rpm-sles" ]
 then
     dep_ldap="openldap2-devel"
+    dep_libyaml="libyaml-0-2"
 fi
 
 dep_pcre="pcre"
@@ -73,6 +76,7 @@ then
         -d "$dep_ldap" \
         -d "$dep_pcre" \
         -d "$dep_which" \
+        -d "$dep_libyaml" \
         --post-install post-install-apisix-runtime.sh \
         --description 'Apache APISIX is a distributed gateway for APIs and Microservices, focused on high performance and reliability.' \
         --license "ASL 2.0" \
@@ -81,8 +85,7 @@ then
         --url 'http://apisix.apache.org/' \
         --config-files usr/lib/systemd/system/apisix.service \
         --config-files usr/lib/systemd/system/openresty.service \
-        --config-files usr/local/apisix/conf/config.yaml \
-        --config-files usr/local/apisix/conf/config-default.yaml
+        --config-files usr/local/apisix/conf/config.yaml
 else
     fpm -f -s dir -t "$PACKAGE_TYPE" \
         --"$PACKAGE_TYPE"-dist "$dist" \
@@ -101,8 +104,7 @@ else
         -p /output \
         --url 'http://apisix.apache.org/' \
         --config-files usr/lib/systemd/system/apisix.service \
-        --config-files usr/local/apisix/conf/config.yaml \
-        --config-files usr/local/apisix/conf/config-default.yaml
+        --config-files usr/local/apisix/conf/config.yaml
 fi
 
 PACKAGE_ARCH="amd64"
